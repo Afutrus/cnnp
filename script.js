@@ -1,4 +1,4 @@
-const API_KEY = "fe_oa_e95cd107ea8fd281cfc8d7b6175e505d72c0e83f90e2aab4";
+const API_KEY = "fe_oa_197f7a0f928a9145dfc102c6a8aa2d49bdeff699d58c3a30";
 
 const chatBox = document.getElementById("chat-box");
 
