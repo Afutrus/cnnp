@@ -31,7 +31,7 @@ async function sendMessage(){
     try{
 
         const response = await fetch(
-            "https://api.freemodel.dev/openai/v1/chat/completions",
+            "https://api.freemodel.dev/v1/chat/completions",
             {
                 method:"POST",
                 headers:{
