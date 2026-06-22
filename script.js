@@ -30,29 +30,35 @@ async function sendMessage(){
 
     try{
 
-        const response = await fetch(
-            "https://api.freemodel.dev/v1/chat/completions",
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json",
-                    "Authorization":"Bearer " + API_KEY
+       const response = await fetch(
+    "https://api.freemodel.dev/v1/chat/completions",
+    {
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":"Bearer " + API_KEY
+        },
+        body:JSON.stringify({
+            model:"gpt-5.4-mini",
+            messages:[
+                {
+                    role:"system",
+                    content:"Kamu adalah guru sekolah Indonesia yang ramah dan mudah dipahami."
                 },
-                body:JSON.stringify({
-                    model:"gpt-5.4-mini",
-                    messages:[
-                        {
-                            role:"system",
-                            content:"Kamu adalah guru sekolah Indonesia yang ramah dan mudah dipahami."
-                        },
-                        {
-                            role:"user",
-                            content:message
-                        }
-                    ]
-                })
-            }
-        );
+                {
+                    role:"user",
+                    content:message
+                }
+            ]
+        })
+    }
+);
+
+console.log("STATUS:", response.status);
+
+const text = await response.text();
+
+console.log("BODY:", text);
 
         const data = await response.json();
 
