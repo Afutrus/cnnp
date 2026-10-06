@@ -1,5 +1,14 @@
+import formidable from "formidable";
+import fs from "fs";
+
+export const config = {
+    api: {
+        bodyParser: false
+    }
+};
+
 export default async function handler(req, res) {
-    // Hanya menerima POST
+
     if (req.method !== "POST") {
         return res.status(405).json({
             ok: false,
@@ -8,27 +17,45 @@ export default async function handler(req, res) {
     }
 
     try {
-        const token = process.env.TELEGRAM_TOKEN;
-        const chatId = process.env.TELEGRAM_CHAT_ID;
 
-        // Pastikan environment variable tersedia
-        if (!token || !chatId) {
-            console.error("Telegram environment variable belum diset.");
+        // Ambil dari Vercel Environment Variables
+        const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+        const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
+        if (!TELEGRAM_TOKEN) {
             return res.status(500).json({
                 ok: false,
-                error: "Telegram configuration belum diset di Vercel"
+                error: "TELEGRAM_TOKEN belum diset di Vercel"
             });
         }
 
-        /*
-         * Karena browser mengirim multipart/form-data,
-         * kita membaca request body sebagai FormData.
-         */
-        const formData = await req.formData();
+        if (!TELEGRAM_CHAT_ID) {
+            return res.status(500).json({
+                ok: false,
+                error: "TELEGRAM_CHAT_ID belum diset di Vercel"
+            });
+        }
 
-        const photo = formData.get("photo");
-        const caption = formData.get("caption");
+        // Parse multipart/form-data
+        const form = formidable({
+            multiples: false
+        });
+
+        const [fields, files] = await new Promise((resolve, reject) => {
+
+            form.parse(req, (err, fields, files) => {
+
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                resolve([fields, files]);
+            });
+
+        });
+
+        const photo = files.photo?.[0];
 
         if (!photo) {
             return res.status(400).json({
@@ -37,20 +64,39 @@ export default async function handler(req, res) {
             });
         }
 
-        // Buat FormData baru untuk Telegram
+        const caption = fields.caption?.[0] || "";
+
+        // FormData untuk Telegram
         const telegramForm = new FormData();
 
-        telegramForm.append("chat_id", chatId);
-        telegramForm.append("photo", photo);
+        telegramForm.append(
+            "chat_id",
+            TELEGRAM_CHAT_ID
+        );
 
-        if (caption) {
-            telegramForm.append("caption", caption);
-            telegramForm.append("parse_mode", "Markdown");
-        }
+        telegramForm.append(
+            "photo",
+            new Blob([
+                fs.readFileSync(photo.filepath)
+            ], {
+                type: photo.mimetype || "image/jpeg"
+            }),
+            photo.originalFilename || "bukti.jpg"
+        );
+
+        telegramForm.append(
+            "caption",
+            caption
+        );
+
+        telegramForm.append(
+            "parse_mode",
+            "Markdown"
+        );
 
         // Kirim ke Telegram
         const telegramResponse = await fetch(
-            `https://api.telegram.org/bot${token}/sendPhoto`,
+            `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`,
             {
                 method: "POST",
                 body: telegramForm
@@ -59,26 +105,36 @@ export default async function handler(req, res) {
 
         const result = await telegramResponse.json();
 
-        console.log("Telegram response:", result);
-
         if (!telegramResponse.ok || !result.ok) {
+
+            console.error(
+                "Telegram API Error:",
+                result
+            );
+
             return res.status(500).json({
                 ok: false,
-                error: result.description || "Telegram API gagal",
+                error:
+                    result.description ||
+                    "Telegram API gagal"
             });
         }
 
         return res.status(200).json({
-            ok: true,
-            message: "Berhasil dikirim ke Telegram"
+            ok: true
         });
 
     } catch (error) {
-        console.error("BONGKAR API ERROR:", error);
+
+        console.error(
+            "BONGKAR API ERROR:",
+            error
+        );
 
         return res.status(500).json({
             ok: false,
-            error: error.message || "Internal Server Error"
+            error: error.message ||
+                "Internal Server Error"
         });
     }
 }
