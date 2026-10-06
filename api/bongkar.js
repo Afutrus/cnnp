@@ -1,5 +1,8 @@
+import dotenv from "dotenv";
 import formidable from "formidable";
 import fs from "fs";
+
+dotenv.config();
 
 export const config = {
     api: {
@@ -18,25 +21,16 @@ export default async function handler(req, res) {
 
     try {
 
-        // Ambil dari Vercel Environment Variables
         const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
         const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-        if (!TELEGRAM_TOKEN) {
+        if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
             return res.status(500).json({
                 ok: false,
-                error: "TELEGRAM_TOKEN belum diset di Vercel"
+                error: "Telegram environment variable belum tersedia"
             });
         }
 
-        if (!TELEGRAM_CHAT_ID) {
-            return res.status(500).json({
-                ok: false,
-                error: "TELEGRAM_CHAT_ID belum diset di Vercel"
-            });
-        }
-
-        // Parse multipart/form-data
         const form = formidable({
             multiples: false
         });
@@ -55,7 +49,9 @@ export default async function handler(req, res) {
 
         });
 
-        const photo = files.photo?.[0];
+        const photo = Array.isArray(files.photo)
+            ? files.photo[0]
+            : files.photo;
 
         if (!photo) {
             return res.status(400).json({
@@ -64,9 +60,10 @@ export default async function handler(req, res) {
             });
         }
 
-        const caption = fields.caption?.[0] || "";
+        const caption = Array.isArray(fields.caption)
+            ? fields.caption[0]
+            : fields.caption || "";
 
-        // FormData untuk Telegram
         const telegramForm = new FormData();
 
         telegramForm.append(
@@ -94,7 +91,6 @@ export default async function handler(req, res) {
             "Markdown"
         );
 
-        // Kirim ke Telegram
         const telegramResponse = await fetch(
             `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`,
             {
@@ -107,16 +103,11 @@ export default async function handler(req, res) {
 
         if (!telegramResponse.ok || !result.ok) {
 
-            console.error(
-                "Telegram API Error:",
-                result
-            );
+            console.error("Telegram error:", result);
 
             return res.status(500).json({
                 ok: false,
-                error:
-                    result.description ||
-                    "Telegram API gagal"
+                error: result.description || "Telegram API gagal"
             });
         }
 
@@ -126,15 +117,11 @@ export default async function handler(req, res) {
 
     } catch (error) {
 
-        console.error(
-            "BONGKAR API ERROR:",
-            error
-        );
+        console.error("BONGKAR ERROR:", error);
 
         return res.status(500).json({
             ok: false,
-            error: error.message ||
-                "Internal Server Error"
+            error: error.message || "Internal Server Error"
         });
     }
 }
