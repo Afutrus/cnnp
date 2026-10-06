@@ -1,8 +1,5 @@
-import dotenv from "dotenv";
 import formidable from "formidable";
 import fs from "fs";
-
-dotenv.config();
 
 export const config = {
     api: {
