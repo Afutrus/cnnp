@@ -1,16 +1,15 @@
 /**
  * Vercel Serverless Function: Zenithplay withdraw proxy (forwarder).
  *
- * Frontend POST ke /api/bongkar-order { royal_id, amount }.
- *  - royal_id: ID game user (string digit)
- *  - amount: "1B".."10B" (dipetakan ke product_id di sisi proxy)
- *
- * Function ini:
+ * POST /api/bongkar-order { royal_id, amount }
  *   1. submit async ke proxy  -> POST /api/withdraw      => { order_id }
  *   2. polling status          -> GET  /api/withdraw/:id  sampai terminal
  *   3. kembalikan data withdrawal ke frontend.
  *
- * Env (Vercel -> Settings -> Environment Variables):
+ * GET /api/bongkar-order?order_id=xxx
+ *   -> live status dari supplier (untuk polling popup frontend)
+ *
+ * Env:
  *   ZENITH_PROXY_URL   mis. http://104.245.34.139:8788 (tanpa trailing slash)
  *   ZENITH_PROXY_KEY   sama dengan API_KEY di /opt/zenith-withdraw/.env
  */
@@ -29,7 +28,7 @@ function cors(req, res) {
   const origin = req.headers.origin || '';
   res.setHeader('Access-Control-Allow-Origin',
     ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
@@ -58,9 +57,6 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 module.exports = async (req, res) => {
   cors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, error: 'Method not allowed' });
-  }
 
   const PROXY_URL = (process.env.ZENITH_PROXY_URL || '').replace(/\/$/, '');
   const PROXY_KEY = process.env.ZENITH_PROXY_KEY || '';
@@ -69,6 +65,40 @@ module.exports = async (req, res) => {
       success: false,
       error: 'Proxy belum dikonfigurasi (ZENITH_PROXY_URL / ZENITH_PROXY_KEY).',
     });
+  }
+
+  // ---- GET: live status untuk polling popup ----
+  if (req.method === 'GET') {
+    const orderId = String((req.query && req.query.order_id) || '').trim();
+    if (!orderId) {
+      return res.status(400).json({ success: false, error: 'order_id wajib.' });
+    }
+    try {
+      const g = await proxyFetch(PROXY_URL, PROXY_KEY,
+        `/api/withdraw/${encodeURIComponent(orderId)}`);
+      const order = g.data && g.data.order;
+      if (!order) {
+        return res.status(404).json({ success: false, error: 'order tidak ditemukan.' });
+      }
+      let live = null;
+      if (order.status === 'SUCCESS' && order.result && order.result.withdrawal_id) {
+        const s = await proxyFetch(PROXY_URL, PROXY_KEY,
+          `/api/withdraw/${encodeURIComponent(orderId)}/status`);
+        live = s.data && s.data.live;
+      }
+      return res.status(200).json({
+        success: true,
+        order_status: order.status,
+        withdrawal: order.result || null,
+        live,
+      });
+    } catch (e) {
+      return res.status(502).json({ success: false, error: 'Proxy tidak merespon.' });
+    }
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
   let body = req.body;
