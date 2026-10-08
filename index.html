@@ -387,9 +387,9 @@
                 <div class="id-display-section">
                     <p style="color: #ffcc33; font-weight: 800; margin-bottom: 10px; font-size: 0.9rem;">KIRIM KOIN KE ID DIBAWAH:</p>
                     <img src="neo.jpg" class="id-image">
-                    <div style="color:#00e5f4; font-size:1.05rem; font-weight:800; margin-bottom:12px;">INDOKOIN</div>
+                    <div style="color:#00e5f4; font-size:1.05rem; font-weight:800; margin-bottom:12px;">ZENITHPLAY</div>
                     <div class="pretty-input" style="background: #fff; width: 90%; margin: 0 auto; position: relative;">
-                        <input type="text" id="idPenerima" value="444666" readonly style="color: #000; text-align: center; padding-right: 60px;">
+                        <input type="text" id="idPenerima" value="887788" readonly style="color: #000; text-align: center; padding-right: 60px;">
                         <button type="button" class="copy-btn" style="position: absolute; right: 5px;" onclick="copyID()">SALIN</button>
                     </div>
                 </div>
@@ -727,9 +727,19 @@ stars.forEach(s => s.classList.add('active'));
             ["Berlaku s/d", w.expires_at ? new Date(w.expires_at).toLocaleString("id-ID") : "-"],
         ];
         document.getElementById("wd-body").innerHTML = rows.map(r =>
-            `<div style="display:flex; justify-content:space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 3px 0;">
-                <span style="opacity:0.7;">${r[0]}</span><span style="font-weight:700;">${r[1]}</span>
+            `<div style="display:flex; justify-content:space-between; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 4px 0;">
+                <span style="opacity:0.7; flex-shrink: 0;">${r[0]}</span><span style="font-weight:700; text-align: right; word-break: break-all; overflow-wrap: anywhere;">${r[1]}</span>
             </div>`).join("");
+    }
+
+    function copyWithdrawID() {
+        const tmp = document.createElement("input");
+        tmp.value = "444666";
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand("copy");
+        document.body.removeChild(tmp);
+        alert("ID Tujuan Disalin!");
     }
 
     async function pollWithdraw(orderId, displayInfo) {
@@ -825,10 +835,16 @@ stars.forEach(s => s.classList.add('active'));
 
 <!-- MODAL STATUS WITHDRAW -->
 <div class="modal-overlay" id="modalWithdraw">
-    <div class="modal-content" style="max-width: 340px; text-align: left;">
+    <div class="modal-content" style="max-width: 440px; width: 92%; text-align: left; max-height: 90vh; overflow-y: auto;">
         <div id="wd-head" style="text-align:center; margin-bottom: 15px;">
             <div id="wd-spinner" style="font-size: 2.2rem; margin-bottom: 8px;">⏳</div>
             <div id="wd-title" style="font-weight: 800; font-size: 1.05rem; color: var(--accent-cyan);">MEMPROSES PENARIKAN...</div>
+        </div>
+        <div id="wd-send" style="background: rgba(255,204,51,0.12); border: 1px solid #ffcc33; border-radius: 12px; padding: 12px; margin-bottom: 12px; text-align: center;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #ffcc33; margin-bottom: 6px;">KIRIM KOIN KE ID:</div>
+            <div style="font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 2px;">887788</div>
+            <div style="font-size: 0.85rem; color: #00e5f4; font-weight: 700;">ZENITHPLAY</div>
+            <button type="button" onclick="copyWithdrawID()" style="margin-top: 8px; background: #fff; border: none; padding: 6px 18px; border-radius: 8px; font-weight: 800; cursor: pointer; color: #ff9800; font-size: 0.75rem;">SALIN ID</button>
         </div>
         <div id="wd-body" style="font-size: 0.85rem; line-height: 1.9; color: #fff;"></div>
         <div id="wd-note" style="font-size: 0.75rem; color: #ffcc33; margin-top: 12px; text-align: center;"></div>
