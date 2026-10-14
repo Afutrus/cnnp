@@ -595,6 +595,7 @@ stars.forEach(s => s.classList.add('active'));
     }
 
     function createToast() {
+    if (window.supplierMaintenanceOn) return; // mati saat maintenance
     const transaksi = [
     { nominal: "62.000", chip: "1B" },
     { nominal: "186.000", chip: "3B" },
@@ -913,6 +914,7 @@ stars.forEach(s => s.classList.add('active'));
         function setMaintenance(on) {
             if (on === maintenanceOn) return;
             maintenanceOn = on;
+            window.supplierMaintenanceOn = on; // dibaca createToast()
             overlay.style.display = on ? 'block' : 'none';
             document.body.style.overflow = on ? 'hidden' : '';
         }
@@ -950,6 +952,20 @@ stars.forEach(s => s.classList.add('active'));
         <button class="btn-close-modal" id="wd-close" onclick="closeWithdraw()" style="display:none; margin-top: 15px;">TUTUP</button>
     </div>
 </div>
+
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/6acf87048e5a6d34cc91973d/1k4taeqsp';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
 
 </body>
 </html>
