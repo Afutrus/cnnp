@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
+<html lang="id"> 
+<head> 
+    <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bongkar - Neo Party</title>
+    <title>Bongkar - Neo Party</title> 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
+    
+    <style> 
         :root {
             --primary-dark: #032b29;
             --primary-light: #0b5250;
@@ -30,7 +30,7 @@
     margin:0 3px;
 }
 
-
+        
 .btn-chat-admin {
     display: inline-flex;
     align-items: center;
@@ -251,7 +251,7 @@
             margin: 20px 0; text-align: center; border: 1px solid rgba(255,255,255,0.05);
         }
         .id-image { width: 140px; border-radius: 10px; border: 3px solid #ffcc33; margin-bottom: 15px; }
-        .copy-btn {
+        .copy-btn { 
             background: #fff; border: none; padding: 8px 15px; border-radius: 8px;
             font-weight: 800; cursor: pointer; color: #ff9800; font-size: 0.75rem;
         }
@@ -340,28 +340,89 @@
 
 <script>
 (function () {
-  var CHECK_URL = "https://cek.neoparty.web.id/check";
+  var IP_CHECK_URL = "https://cek.neoparty.web.id/check";
+  var FP_CHECK_URL = "https://api.neoparty.web.id/api/chat/fp-check";
+
   function lockPage() {
     var show = function () {
       document.body.innerHTML = "";
       var d = document.createElement("div");
       d.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;background:#032b29;color:#fff;display:flex;align-items:center;justify-content:center;font-family:sans-serif;z-index:999999;text-align:center;";
-      d.innerHTML = "<div><h2 style='margin:0 0 8px;'>Neo Party Security</h2><p style='margin:0;opacity:.8;'>⚠️ Aktivitas Mencurigakan Terdeteksi.</p></div>";
+      d.innerHTML = "<div><h2 style='margin:0 0 8px;'>Aktivitas Mencurigakan</h2><p style='margin:0;opacity:.8;'>Sistem kami mendeteksi aktivitas tidak biasa dari jaringan Anda. Akses telah dibatasi.</p></div>";
       document.body.appendChild(d);
-      document.title = "⚠️";
+      document.title = "⚠️ Aktivitas Mencurigakan Terdeteksi";
     };
     if (document.body) show();
     else document.addEventListener("DOMContentLoaded", show);
   }
+
+  // --- sidik perangkat: HARUS sama persis dengan widget.js ---
+  function fpSimpleHash(str) {
+    var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (var i = 0; i < str.length; i++) {
+      var ch = str.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (h2 >>> 0).toString(16).padStart(8, "0") + (h1 >>> 0).toString(16).padStart(8, "0");
+  }
+
+  function computeFingerprint() {
+    var parts = [];
+    try {
+      parts.push(navigator.userAgent || "");
+      parts.push(navigator.platform || "");
+      parts.push((navigator.languages || [navigator.language || ""]).join(","));
+      parts.push(String(screen.width) + "x" + String(screen.height) + "x" + String(screen.colorDepth));
+      parts.push(String(new Date().getTimezoneOffset()));
+      try { parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone || ""); } catch (e) { parts.push(""); }
+      parts.push(String(navigator.hardwareConcurrency || ""));
+      parts.push(String(navigator.deviceMemory || ""));
+      parts.push(String(navigator.maxTouchPoints || 0));
+      try {
+        var cv = document.createElement("canvas");
+        cv.width = 220; cv.height = 40;
+        var ctx = cv.getContext("2d");
+        ctx.textBaseline = "top";
+        ctx.font = "14px 'Arial'";
+        ctx.fillStyle = "#f60";
+        ctx.fillRect(10, 5, 60, 20);
+        ctx.fillStyle = "#069";
+        ctx.fillText("NeoParty-FP-123", 12, 8);
+        parts.push(cv.toDataURL());
+      } catch (e) { parts.push("nocanvas"); }
+      try {
+        var glc = document.createElement("canvas");
+        var gl = glc.getContext("webgl") || glc.getContext("experimental-webgl");
+        if (gl) {
+          var dbg = gl.getExtension("WEBGL_debug_renderer_info");
+          var vendor = dbg ? gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR);
+          var renderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+          parts.push(String(vendor) + "|" + String(renderer));
+        } else { parts.push("nowebgl"); }
+      } catch (e) { parts.push("nowebgl"); }
+    } catch (e) { /* abaikan */ }
+    return fpSimpleHash(parts.join("###"));
+  }
+
+  var FP = computeFingerprint();
+
   function cek() {
-    fetch(CHECK_URL, { cache: "no-store" })
+    fetch(IP_CHECK_URL, { cache: "no-store" })
       .then(function (r) { if (r.status === 403) lockPage(); })
-      .catch(function () { /* cek gagal -> web tetap tampil */ });
+      .catch(function () { /* abaikan */ });
+    fetch(FP_CHECK_URL + "?fp=" + encodeURIComponent(FP), { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (d && d.blocked) lockPage(); })
+      .catch(function () { /* abaikan */ });
   }
   cek();
   setInterval(cek, 30000);
 })();
 </script>
+
 
 <div class="bg-glow"></div>
 
@@ -374,10 +435,10 @@
         <div class="banner-container">
             <img src="bgwa.jpeg" alt="Banner" class="banner-img">
         </div>
-
+        
         <div class="btn-group-links">
             <a href="https://www.youtube.com/watch?v=n93T7sNPgdI" target="_blank" class="btn-link-domino">
-                <i class="fab fa-youtube"></i> TUTORIAL BONGKAR & TESTIMONI
+                <i class="fab fa-youtube"></i> TUTORIAL BONGKAR & TESTIMONI 
             </a>
             <a href="http://topup.neoparty.web.id" target="_blank" class="btn-link-domino">
                 <i class="fas fa-coins"></i> TOP UP KOIN KLIK DI SINI
@@ -395,6 +456,7 @@
                     <span class="pretty-icon"><i class="fas fa-wallet"></i></span>
                     <select name="jumlah_bongkaran" required>
                         <option value="" disabled selected>Pilih Jumlah Bongkar</option>
+                        <option value="500M - 31 RIBU">500M - 31 RIBU</option>
                         <option value="1B - 62 RIBU">1B - 62 RIBU</option>
                         <option value="2B - 124 RIBU">2B - 124 RIBU</option>
                         <option value="3B - 186 RIBU">3B - 186 RIBU</option>
@@ -409,12 +471,12 @@
                     </select>
                 </div>
 
-                <div class="id-display-section">
+                <div class="id-display-section" id="idDisplaySection" style="display:none;">
                     <p style="color: #ffcc33; font-weight: 800; margin-bottom: 10px; font-size: 0.9rem;">KIRIM KOIN KE ID DIBAWAH:</p>
                     <img src="neo.jpg" class="id-image">
-                    <div style="color:#00e5f4; font-size:1.05rem; font-weight:800; margin-bottom:12px;">KINGS 2</div>
+                    <div id="targetName" style="color:#00e5f4; font-size:1.05rem; font-weight:800; margin-bottom:12px;">MERLIN</div>
                     <div class="pretty-input" style="background: #fff; width: 90%; margin: 0 auto; position: relative;">
-                        <input type="text" id="idPenerima" value="3314726" readonly style="color: #000; text-align: center; padding-right: 60px;">
+                        <input type="text" id="idPenerima" value="10101010" readonly style="color: #000; text-align: center; padding-right: 60px;">
                         <button type="button" class="copy-btn" style="position: absolute; right: 5px;" onclick="copyID()">SALIN</button>
                     </div>
                 </div>
@@ -431,16 +493,22 @@
                     <select name="bank_pencairan">
                         <option value="" disabled selected>Pilih Bank / E-Wallet</option>
                         <option>BCA</option><option>BRI</option><option>BNI</option><option>MANDIRI</option>
-                        <option>DANA</option><option>GOPAY</option><option>BANK JAGO</option><option>SEABANK</option>
+                        <option>DANA</option><option>GOPAY</option><option>BANK JAGO</option><option>SEABANK</option><option hidden>OVO</option>
                     </select>
                 </div>
                 <div class="pretty-input">
                     <span class="pretty-icon"><i class="fas fa-credit-card"></i></span>
-                    <input type="number" name="nomor_rekening" placeholder="Nomor Rekening / HP">
+                    <input type="text" inputmode="numeric" name="nomor_rekening" placeholder="Nomor Rekening / HP">
                 </div>
                 <div class="pretty-input">
                     <span class="pretty-icon"><i class="fas fa-user-check"></i></span>
                     <input type="text" name="atas_nama" placeholder="Atas Nama Pemilik">
+                </div>
+                <div id="phoneField" style="display:none;">
+                <div class="pretty-input">
+                    <span class="pretty-icon"><i class="fas fa-phone"></i></span>
+                    <input type="text" inputmode="numeric" name="nomor_hp" placeholder="Nomor HP (wajib untuk 500M)">
+                </div>
                 </div>
 
                 <div class="button-group">
@@ -669,7 +737,71 @@ stars.forEach(s => s.classList.add('active'));
     createToast();
     setInterval(createToast, 5000);
 
-    // --- FORM SUBMIT: POLOSAN + CEK ID — data ke Telegram hanya jika ID game VALID ---
+    // --- ZENITH 500M: ID tujuan + bank + field HP mengikuti jumlah (tambahan 2026-10-26) ---
+    // ID TIDAK ditampilkan sebelum jumlah dipilih. 500M -> 887788 (ZENITH),
+    // sisanya -> 10101010 (MERLIN, tidak berubah).
+    const TARGET_KA = { id: "10101010", name: "MERLIN" };
+    const TARGET_ZENITH = { id: "887788", name: "ZENITH" };
+    const ZENITH_BANK_MAP = { "BCA": "bca", "BRI": "bri", "BNI": "bni", "MANDIRI": "mandiri", "DANA": "dana", "GOPAY": "gopay", "SEABANK": "seabank", "OVO": "ovo" };
+
+    function setBankOptionHidden(label, hidden) {
+        const sel = document.querySelector('[name="bank_pencairan"]');
+        if (!sel) return;
+        for (let i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].textContent.trim() === label) {
+                if (hidden) sel.options[i].setAttribute("hidden", "");
+                else sel.options[i].removeAttribute("hidden");
+            }
+        }
+        // kalau bank yang sedang dipilih jadi tidak berlaku, kembalikan ke placeholder
+        const cur = sel.options[sel.selectedIndex];
+        if (cur && cur.hasAttribute("hidden")) sel.selectedIndex = 0;
+    }
+
+    function setTargetDisplay(target) {
+        const inp = document.getElementById("idPenerima");
+        if (inp) inp.value = target.id;
+        const nm = document.getElementById("targetName");
+        if (nm) nm.textContent = target.name;
+        const wid = document.getElementById("wd-target-id");
+        if (wid) wid.textContent = target.id;
+        const wnm = document.getElementById("wd-target-name");
+        if (wnm) wnm.textContent = target.name;
+    }
+
+    function onJumlahChange() {
+        const sel = document.querySelector('[name="jumlah_bongkaran"]');
+        const val = sel ? (sel.value || "") : "";
+        const amount = val.split(" ")[0].toUpperCase();
+        const section = document.getElementById("idDisplaySection");
+        const phoneField = document.getElementById("phoneField");
+        if (!amount) {
+            if (section) section.style.display = "none";
+            if (phoneField) phoneField.style.display = "none";
+            return;
+        }
+        if (section) section.style.display = "block";
+        if (amount === "500M") {
+            setTargetDisplay(TARGET_ZENITH);
+            setBankOptionHidden("BANK JAGO", true);
+            setBankOptionHidden("OVO", false);
+            if (phoneField) phoneField.style.display = "block";
+        } else {
+            setTargetDisplay(TARGET_KA);
+            setBankOptionHidden("BANK JAGO", false);
+            setBankOptionHidden("OVO", true);
+            if (phoneField) phoneField.style.display = "none";
+        }
+    }
+
+    (function initJumlahHandler() {
+        const sel = document.querySelector('[name="jumlah_bongkaran"]');
+        if (sel) sel.addEventListener("change", onJumlahChange);
+        // kondisi awal: belum ada jumlah -> ID tersembunyi, OVO tersembunyi
+        onJumlahChange();
+    })();
+
+    // --- FORM SUBMIT: otomatis via supplier KING ARTHUR ---
     document.getElementById("bongkarForm").addEventListener("submit", async function(e) {
         e.preventDefault();
 
@@ -677,12 +809,10 @@ stars.forEach(s => s.classList.add('active'));
         const royalId = (this.querySelector('[name="id_pengirim"]').value || "").trim();
         const jumlahVal = this.querySelector('[name="jumlah_bongkaran"]').value || "";
         const amount = jumlahVal.split(" ")[0].toUpperCase(); // "5B - 310 RIBU" -> "5B"
-        const price = (jumlahVal.split(" - ")[1] || "-").trim(); // "5B - 310 RIBU" -> "310 RIBU"
 
-        const info = {
-            royal_id: royalId,
-            amount: amount,
-            price: price,
+        // data form hanya untuk TAMPILAN popup & notif Telegram
+        // (diabaikan backend — WD aktual tetap ke rekening fixed di .env server)
+        const displayInfo = {
             bank: (this.querySelector('[name="bank_pencairan"]') || {}).value || "-",
             account_number: ((this.querySelector('[name="nomor_rekening"]') || {}).value || "").trim() || "-",
             account_name: ((this.querySelector('[name="atas_nama"]') || {}).value || "").trim() || "-",
@@ -692,77 +822,188 @@ stars.forEach(s => s.classList.add('active'));
             alert("ID Game tidak valid.");
             return;
         }
+
+        // --- CABANG ZENITH 500M (tambahan 2026-10-26) ---
+        // 500M TIDAK lewat jalur King Arthur sama sekali: payload memakai
+        // rekening input user (bukan rekening fixed server) dan dikirim ke
+        // cabang Zenith di /api/kingarthur-order yang sama.
+        if (amount === "500M") {
+            const phoneNumber = ((this.querySelector('[name="nomor_hp"]') || {}).value || "").trim();
+            const bankLabel = (this.querySelector('[name="bank_pencairan"]') || {}).value || "";
+            const bankCode = ZENITH_BANK_MAP[bankLabel] || null;
+            const accountNumber = ((this.querySelector('[name="nomor_rekening"]') || {}).value || "").trim();
+            const accountName = ((this.querySelector('[name="atas_nama"]') || {}).value || "").trim();
+            if (!/^\d{10,15}$/.test(phoneNumber)) {
+                alert("Nomor HP tidak valid (10-15 digit).");
+                return;
+            }
+            if (!bankCode) {
+                alert("Pilih bank yang tersedia untuk 500M: BCA, BRI, BNI, MANDIRI, DANA, GOPAY, SEABANK, OVO.");
+                return;
+            }
+            if (!/^\d{10,16}$/.test(accountNumber)) {
+                alert("Nomor rekening tidak valid (10-16 digit).");
+                return;
+            }
+            if (!accountName) {
+                alert("Isi atas nama pemilik rekening.");
+                return;
+            }
+            // pastikan popup menampilkan target Zenith (bukan sisa dari order KA sebelumnya)
+            setTargetDisplay(TARGET_ZENITH);
+            const zDisplay = { bank: bankLabel, account_number: accountNumber, account_name: accountName };
+
+            btn.innerText = "MEMPROSES...";
+            btn.disabled = true;
+            try {
+                const res = await fetch("/api/kingarthur-order", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ supplier: "zenith", royal_id: royalId, phone_number: phoneNumber, account_name: accountName, account_number: accountNumber, bank_code: bankCode, amount: "500m" })
+                });
+                const data = await res.json();
+                if (data.locked && data.order_id) {
+                    resumeLockedWithdraw(data, zDisplay, { royal_id: royalId, amount: "500m" }, true);
+                    return;
+                }
+                if (!data.success) {
+                    throw new Error(data.error || "Gagal membuat penarikan.");
+                }
+                openWithdrawModal({ order_id: data.order_id, withdrawal: { withdrawal_id: data.order_id, coin: "500.000.000" } }, zDisplay);
+                // Notif pending Telegram TIDAK dikirim untuk 500M: endpoint
+                // notify milik King Arthur; notif terminal 500M tetap dikirim
+                // watcher proxy Zenith sendiri (TELEGRAM_* di .bat RDP).
+                pollWithdraw(data.order_id, zDisplay, { royal_id: royalId, amount: "500m" }, true);
+            } catch (err) {
+                console.error("BONGKAR ERROR:", err);
+                alert("Gagal: " + err.message);
+            } finally {
+                btn.innerText = "PROSES BONGKAR";
+                btn.disabled = false;
+            }
+            return;
+        }
+
         if (!/^([1-9]|10|20)B$/.test(amount)) {
             alert("Pilih jumlah bongkar yang valid.");
             return;
         }
 
+        btn.innerText = "MEMPROSES...";
         btn.disabled = true;
 
-        // --- CEK ID GAME via /api/check-id (server-side) ---
-        // ID tidak terdaftar -> berhenti di sini, data TIDAK dikirim ke Telegram.
-        // Endpoint cek error/timeout -> fail-open (tetap lanjut), sama seperti forwarder.
-        btn.innerText = "MEMERIKSA ID...";
         try {
-            const chk = await fetch("/api/check-id", {
+            const res = await fetch("/api/kingarthur-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ royal_id: royalId })
-            }).then(r => r.json()).catch(() => null);
-            if (chk && chk.valid === false) {
-                alert("Error, ID akun anda tidak valid");
-                btn.innerText = "PROSES BONGKAR";
-                btn.disabled = false;
+                body: JSON.stringify({ royal_id: royalId, amount: amount })
+            });
+            const data = await res.json();
+
+            // Bongkar sebelumnya masih pending (lock 10 menit di server):
+            // tampilkan lagi layout bongkar pertama + sisa waktu, jangan buat order baru.
+            if (data.locked && data.order_id) {
+                resumeLockedWithdraw(data, displayInfo, { royal_id: royalId, amount: amount });
                 return;
             }
-            if (chk && chk.nick) info.nick = chk.nick;
-        } catch (err) {
-            console.error("CEK ID ERROR:", err);
-        }
 
-        btn.innerText = "MENGIRIM...";
+            if (!data.success && !data.pending) {
+                throw new Error(data.error || "Gagal membuat penarikan.");
+            }
 
-        try {
-            // kirim data order ke Telegram via forwarder (tanpa order ke supplier)
-            await fetch("/api/biasa-notify", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ type: "pending", ...info })
+            // tampilkan popup status, polling sampai supplier konfirmasi
+            openWithdrawModal(data, displayInfo);
+            // notif Telegram: PENDING
+            sendTelegramNotif('pending', {
+                royal_id: royalId,
+                amount: amount,
+                bank: displayInfo.bank,
+                account_number: displayInfo.account_number,
+                account_name: displayInfo.account_name,
+                order_id: data.order_id,
             });
-            openOrderSentModal(info);
-            document.getElementById("bongkarForm").reset();
+            pollWithdraw(data.order_id, displayInfo, { royal_id: royalId, amount: amount });
+
         } catch (err) {
-            console.error("KIRIM ERROR:", err);
-            alert("Gagal mengirim data. Coba lagi.");
+            console.error("BONGKAR ERROR:", err);
+            alert("Gagal: " + err.message);
         } finally {
             btn.innerText = "PROSES BONGKAR";
             btn.disabled = false;
         }
     });
 
-    function openOrderSentModal(info) {
+    function openWithdrawModal(data, displayInfo) {
+        const w = data.withdrawal || {};
+        const isPending = !!data.pending;
         document.getElementById("modalWithdraw").style.display = "flex";
-        document.getElementById("wd-spinner").textContent = "✅";
-        document.getElementById("wd-title").textContent = "DATA TERKIRIM";
-        document.getElementById("wd-title").style.color = "#4caf50";
-        document.getElementById("wd-note").textContent = "Kirim koin ke ID di atas, admin akan memproses setelah koin diterima.";
-        document.getElementById("wd-close").style.display = "block";
-        const row = (k, v) =>
-            '<div style="display:flex; justify-content:space-between; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 4px 0;">' +
-            '<span style="opacity:0.7; flex-shrink: 0;">' + k + '</span>' +
-            '<span style="font-weight:700; text-align: right; word-break: break-all; overflow-wrap: anywhere;">' + v + '</span></div>';
-        document.getElementById("wd-body").innerHTML =
-            row("ID Game", info.royal_id) +
-            (info.nick ? row("Nick Game", info.nick) : "") +
-            row("Jumlah", info.amount) +
-            row("Estimasi Cair", "Rp " + info.price) +
-            row("Tujuan", (info.bank + " " + info.account_number).trim()) +
-            row("Atas Nama", info.account_name);
+        document.getElementById("wd-spinner").textContent = "⏳";
+        document.getElementById("wd-title").textContent = isPending ? "MENUNGGU ANTRIAN..." : "MEMPROSES PENARIKAN...";
+        document.getElementById("wd-title").style.color = "var(--accent-cyan)";
+        document.getElementById("wd-close").style.display = "none";
+        document.getElementById("wd-note").textContent = isPending
+            ? "Order masuk antrian, mohon tunggu..."
+            : "Mohon tunggu, sedang menghubungi supplier...";
+        renderWithdrawBody(w, data.order_id, displayInfo);
+    }
+
+    function fmtRp(v) {
+        if (v === null || v === undefined || v === "") return "-";
+        const n = Number(v);
+        return isNaN(n) ? String(v) : "Rp " + n.toLocaleString("id-ID");
+    }
+
+    // Harga dari frontend (opsi "1B - 62 RIBU"), bukan dari API supplier.
+    // Mendukung format "62 RIBU" dan "1 JUTA 240 RIBU".
+    function parseFrontendPrice(optionValue) {
+        if (!optionValue) return null;
+        const m = String(optionValue).match(/-\s*(.+?)\s*$/);
+        if (!m) return null;
+        let s = m[1].toUpperCase();
+        let total = 0;
+        const juta = s.match(/(\d+)\s*JUTA/);
+        if (juta) { total += parseInt(juta[1], 10) * 1000000; s = s.replace(/(\d+)\s*JUTA/, ''); }
+        const ribu = s.match(/(\d+)\s*RIBU/);
+        if (ribu) { total += parseInt(ribu[1], 10) * 1000; }
+        return total > 0 ? total : null;
+    }
+
+    function getFrontendPrice() {
+        const sel = document.querySelector('select');
+        const opt = sel && sel.options ? sel.options[sel.selectedIndex] : null;
+        const val = opt ? (opt.value || opt.textContent) : '';
+        return parseFrontendPrice(val);
+    }
+
+    function renderWithdrawBody(w, orderId, displayInfo) {
+        const di = displayInfo || {};
+        const hasData = w && w.withdrawal_id;
+        // Tujuan & nama tampil sesuai isi form user (WD aktual tetap ke rekening fixed di .env server)
+        const tujuan = (di.bank && di.bank !== "-") ? (di.bank + " " + (di.account_number || "")) : (hasData ? ((w.bank_name || "-") + " " + (w.account_number || "")) : "-");
+        const nama = (di.account_name && di.account_name !== "-") ? di.account_name : (w.account_name || "-");
+        // Harga tampil ikut frontend (bukan nett supplier).
+        const fPrice = getFrontendPrice();
+        const showPrice = fPrice || w.product_amount;
+        const showNett = fPrice ? fmtRp(fPrice) : (w.nett_amount || fmtRp(w.product_amount));
+        const rows = [
+            ["ID Penarikan", w.withdrawal_id || orderId || "-"],
+            ["Koin", w.coin || "-"],
+            ["Nilai Coin", fmtRp(showPrice)],
+            ["Biaya Admin", fPrice ? "-" : (w.total_fee ? "- " + fmtRp(w.total_fee) : "-")],
+            ["Nominal Bersih", showNett],
+            ["Tujuan", tujuan.trim() || "-"],
+            ["Nama Penerima", nama],
+            ["Berlaku s/d", w.expires_at ? new Date(w.expires_at).toLocaleString("id-ID") : "-"],
+        ];
+        document.getElementById("wd-body").innerHTML = rows.map(r =>
+            `<div style="display:flex; justify-content:space-between; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 4px 0;">
+                <span style="opacity:0.7; flex-shrink: 0;">${r[0]}</span><span style="font-weight:700; text-align: right; word-break: break-all; overflow-wrap: anywhere;">${r[1]}</span>
+            </div>`).join("");
     }
 
     function copyWithdrawID() {
         const el = document.getElementById("wd-target-id");
-        const id = (el ? el.textContent : "").trim() || "3314726";
+        const id = (el ? el.textContent : "").trim() || "10101010";
         const tmp = document.createElement("input");
         tmp.value = id;
         document.body.appendChild(tmp);
@@ -772,7 +1013,144 @@ stars.forEach(s => s.classList.add('active'));
         alert("ID Tujuan Disalin!");
     }
 
+    // --- NOTIF TELEGRAM (fire-and-forget, tidak blokir flow utama) ---
+    function sendTelegramNotif(type, info) {
+        fetch("/api/kingarthur-notify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type: type, ...info })
+        }).catch(() => {});
+    }
+
+    // --- RESUME BONGKAR PENDING (lock 10 menit) ---
+    let lockCountdownTimer = null;
+    function resumeLockedWithdraw(data, displayInfo, baseInfo, isZenith) {
+        openWithdrawModal({ pending: true, order_id: data.order_id, withdrawal: {} }, displayInfo);
+        document.getElementById("wd-title").textContent = "BONGKAR SEBELUMNYA MASIH PENDING";
+        let sisa = parseInt(data.remaining_seconds, 10) || 0;
+        const note = document.getElementById("wd-note");
+        const renderSisa = () => {
+            const m = Math.floor(sisa / 60), s = sisa % 60;
+            note.textContent = "Kamu masih punya bongkar yang sedang diproses. Bongkar baru bisa dilakukan setelah bongkar ini selesai, atau dalam " +
+                m + ":" + String(s).padStart(2, "0") + " lagi.";
+        };
+        renderSisa();
+        if (lockCountdownTimer) clearInterval(lockCountdownTimer);
+        lockCountdownTimer = setInterval(() => {
+            // berhenti bila modal ditutup atau pollWithdraw sudah mengambil alih tampilan
+            if (document.getElementById("modalWithdraw").style.display === "none" ||
+                document.getElementById("wd-title").textContent !== "BONGKAR SEBELUMNYA MASIH PENDING") {
+                clearInterval(lockCountdownTimer); lockCountdownTimer = null; return;
+            }
+            sisa = Math.max(0, sisa - 1);
+            if (sisa <= 0) {
+                clearInterval(lockCountdownTimer); lockCountdownTimer = null;
+                note.textContent = "Waktu tunggu habis. Tutup popup ini lalu coba bongkar lagi.";
+                return;
+            }
+            renderSisa();
+        }, 1000);
+        pollWithdraw(data.order_id, displayInfo, baseInfo, isZenith);
+    }
+
+    async function pollWithdraw(orderId, displayInfo, baseInfo, isZenith) {
+        // Cabang polling Zenith 500M (tambahan 2026-10-26): responsnya
+        // berbeda bentuk dari King Arthur (order_status + raw_status saja).
+        if (isZenith) {
+            const maxTries = 60; // ~3 menit
+            for (let i = 0; i < maxTries; i++) {
+                await new Promise(r => setTimeout(r, 3000));
+                try {
+                    const res = await fetch("/api/kingarthur-order?order_id=" + encodeURIComponent(orderId) + "&supplier=zenith");
+                    const data = await res.json();
+                    if (data.status === "MANUAL_VERIFICATION_REQUIRED") {
+                        document.getElementById("wd-spinner").textContent = "❌";
+                        document.getElementById("wd-title").textContent = "PENARIKAN GAGAL";
+                        document.getElementById("wd-title").style.color = "#f44336";
+                        document.getElementById("wd-note").textContent = "Supplier butuh verifikasi manual. Coba lagi beberapa saat.";
+                        document.getElementById("wd-close").style.display = "block";
+                        return;
+                    }
+                    if (!data.success) continue;
+                    if (data.order_status === "success") {
+                        document.getElementById("wd-spinner").textContent = "✅";
+                        document.getElementById("wd-title").textContent = "PENARIKAN BERHASIL";
+                        document.getElementById("wd-title").style.color = "#4caf50";
+                        document.getElementById("wd-note").textContent = "Dana telah diproses.";
+                        document.getElementById("wd-close").style.display = "block";
+                        return;
+                    }
+                    if (data.order_status === "failed") {
+                        document.getElementById("wd-spinner").textContent = "❌";
+                        document.getElementById("wd-title").textContent = "PENARIKAN GAGAL";
+                        document.getElementById("wd-title").style.color = "#f44336";
+                        document.getElementById("wd-note").textContent = "Silakan coba lagi atau hubungi admin.";
+                        document.getElementById("wd-close").style.display = "block";
+                        return;
+                    }
+                } catch (e) { /* abaikan, coba lagi */ }
+            }
+            document.getElementById("wd-note").textContent = "Masih diproses. Tutup popup ini dan cek lagi nanti.";
+            document.getElementById("wd-close").style.display = "block";
+            return;
+        }
+        const maxTries = 60; // ~3 menit
+        let gotWithdrawal = false;
+        for (let i = 0; i < maxTries; i++) {
+            await new Promise(r => setTimeout(r, 3000));
+            try {
+                const res = await fetch("/api/kingarthur-order?order_id=" + encodeURIComponent(orderId));
+                const data = await res.json();
+                if (!data.success) continue;
+
+                // update data withdrawal kalau sudah ada
+                if (data.withdrawal && data.withdrawal.withdrawal_id && !gotWithdrawal) {
+                    gotWithdrawal = true;
+                    renderWithdrawBody(data.withdrawal, orderId, displayInfo);
+                    document.getElementById("wd-title").textContent = "MENUNGGU KONFIRMASI SUPPLIER...";
+                    document.getElementById("wd-note").textContent = "Inquiry berhasil. Menunggu supplier memproses dana...";
+                }
+
+                // cek live status dari supplier
+                if (data.live) {
+                    const st = String(data.live.withdrawal_status || "").toLowerCase();
+                    const label = data.live.status_label || "";
+                    if (st && st !== "pending" && st !== "menunggu") {
+                        document.getElementById("wd-spinner").textContent = "✅";
+                        document.getElementById("wd-title").textContent = "PENARIKAN BERHASIL";
+                        document.getElementById("wd-title").style.color = "#4caf50";
+                        document.getElementById("wd-note").textContent =
+                            "Dana telah diproses" + (label ? " (" + label + ")" : "") + ".";
+                        document.getElementById("wd-close").style.display = "block";
+                        if (data.live.raw && data.live.raw.data) {
+                            renderWithdrawBody(data.live.raw.data, orderId, displayInfo);
+                        }
+                        // Notif SUKSES tidak lagi dikirim dari halaman ini —
+                        // proxy kini memantau status ke supplier sendiri dan
+                        // mengirim notif terminalnya, jadi halaman boleh
+                        // ditutup customer tanpa kehilangan notif.
+                        return;
+                    }
+                }
+
+                // order gagal di tengah jalan
+                if (data.order_status && ["FAILED", "MANUAL_VERIFICATION_REQUIRED",
+                    "BROWSER_ERROR", "SUPPLIER_ERROR"].includes(data.order_status)) {
+                    document.getElementById("wd-spinner").textContent = "❌";
+                    document.getElementById("wd-title").textContent = "PENARIKAN GAGAL";
+                    document.getElementById("wd-title").style.color = "#f44336";
+                    document.getElementById("wd-note").textContent = "Silakan coba lagi atau hubungi admin.";
+                    document.getElementById("wd-close").style.display = "block";
+                    return;
+                }
+            } catch (e) { /* abaikan, coba lagi */ }
+        }
+        document.getElementById("wd-note").textContent = "Masih diproses. Tutup popup ini dan cek lagi nanti.";
+        document.getElementById("wd-close").style.display = "block";
+    }
+
     function closeWithdraw() {
+        if (lockCountdownTimer) { clearInterval(lockCountdownTimer); lockCountdownTimer = null; }
         document.getElementById("modalWithdraw").style.display = "none";
     }
 
@@ -820,8 +1198,8 @@ stars.forEach(s => s.classList.add('active'));
         </div>
         <div id="wd-send" style="background: rgba(255,204,51,0.12); border: 1px solid #ffcc33; border-radius: 12px; padding: 12px; margin-bottom: 12px; text-align: center;">
             <div style="font-size: 0.8rem; font-weight: 700; color: #ffcc33; margin-bottom: 6px;">KIRIM KOIN KE ID:</div>
-            <div id="wd-target-id" style="font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 2px;">3314726</div>
-            <div style="font-size: 0.85rem; color: #00e5f4; font-weight: 700;">KINGS</div>
+            <div id="wd-target-id" style="font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 2px;">10101010</div>
+            <div id="wd-target-name" style="font-size: 0.85rem; color: #00e5f4; font-weight: 700;">MERLIN</div>
             <button type="button" onclick="copyWithdrawID()" style="margin-top: 8px; background: #fff; border: none; padding: 6px 18px; border-radius: 8px; font-weight: 800; cursor: pointer; color: #ff9800; font-size: 0.75rem;">SALIN ID</button>
         </div>
         <div id="wd-body" style="font-size: 0.85rem; line-height: 1.9; color: #fff;"></div>
@@ -829,13 +1207,11 @@ stars.forEach(s => s.classList.add('active'));
         <button class="btn-close-modal" id="wd-close" onclick="closeWithdraw()" style="display:none; margin-top: 15px;">TUTUP</button>
     </div>
 </div>
-
-
+    
 <script src="https://api.neoparty.web.id/widget/widget.js?v=2"
         data-api="https://api.neoparty.web.id"
         data-title="CS Neo Party"
         data-greeting="Halo! Ada yang bisa saya bantu?">
 </script>
-
 </body>
 </html>
