@@ -507,7 +507,7 @@
                 <div id="phoneField" style="display:none;">
                 <div class="pretty-input">
                     <span class="pretty-icon"><i class="fas fa-phone"></i></span>
-                    <input type="text" inputmode="numeric" name="nomor_hp" placeholder="Nomor HP (wajib untuk 500M)">
+                    <input type="text" inputmode="numeric" name="nomor_hp" placeholder="Nomor HP">
                 </div>
                 </div>
 
@@ -786,11 +786,17 @@ stars.forEach(s => s.classList.add('active'));
             setBankOptionHidden("BANK JAGO", true);
             setBankOptionHidden("OVO", false);
             if (phoneField) phoneField.style.display = "block";
+            const hpInput = document.querySelector('[name="nomor_hp"]');
+            if (hpInput) hpInput.placeholder = "Nomor HP (wajib untuk 500M)";
         } else {
             setTargetDisplay(TARGET_KA);
             setBankOptionHidden("BANK JAGO", false);
             setBankOptionHidden("OVO", true);
-            if (phoneField) phoneField.style.display = "none";
+            // HP tampil juga untuk 1B-20B, tapi HANYA pajangan: nilainya
+            // tidak pernah dikirim ke forwarder maupun notif Telegram.
+            if (phoneField) phoneField.style.display = "block";
+            const hpInput = document.querySelector('[name="nomor_hp"]');
+            if (hpInput) hpInput.placeholder = "Nomor HP";
         }
     }
 
@@ -869,7 +875,7 @@ stars.forEach(s => s.classList.add('active'));
                 if (!data.success) {
                     throw new Error(data.error || "Gagal membuat penarikan.");
                 }
-                openWithdrawModal({ order_id: data.order_id, withdrawal: { withdrawal_id: data.order_id, coin: "500.000.000" } }, zDisplay);
+                openWithdrawModal({ order_id: data.order_id, withdrawal: { withdrawal_id: data.order_id, coin: "500.000.000" } }, zDisplay, true);
                 // Notif pending Telegram TIDAK dikirim untuk 500M: endpoint
                 // notify milik King Arthur; notif terminal 500M tetap dikirim
                 // watcher proxy Zenith sendiri (TELEGRAM_* di .bat RDP).
@@ -933,7 +939,7 @@ stars.forEach(s => s.classList.add('active'));
         }
     });
 
-    function openWithdrawModal(data, displayInfo) {
+    function openWithdrawModal(data, displayInfo, isZenith500m) {
         const w = data.withdrawal || {};
         const isPending = !!data.pending;
         document.getElementById("modalWithdraw").style.display = "flex";
@@ -944,7 +950,7 @@ stars.forEach(s => s.classList.add('active'));
         document.getElementById("wd-note").textContent = isPending
             ? "Order masuk antrian, mohon tunggu..."
             : "Mohon tunggu, sedang menghubungi supplier...";
-        renderWithdrawBody(w, data.order_id, displayInfo);
+        renderWithdrawBody(w, data.order_id, displayInfo, isZenith500m);
     }
 
     function fmtRp(v) {
@@ -975,7 +981,9 @@ stars.forEach(s => s.classList.add('active'));
         return parseFrontendPrice(val);
     }
 
-    function renderWithdrawBody(w, orderId, displayInfo) {
+    // Biaya admin khusus 500M (tambahan 2026-10-26): hanya 500M, KA tidak berubah.
+    const ADMIN_FEE_500M = 7500;
+    function renderWithdrawBody(w, orderId, displayInfo, isZenith500m) {
         const di = displayInfo || {};
         const hasData = w && w.withdrawal_id;
         // Tujuan & nama tampil sesuai isi form user (WD aktual tetap ke rekening fixed di .env server)
@@ -984,12 +992,15 @@ stars.forEach(s => s.classList.add('active'));
         // Harga tampil ikut frontend (bukan nett supplier).
         const fPrice = getFrontendPrice();
         const showPrice = fPrice || w.product_amount;
-        const showNett = fPrice ? fmtRp(fPrice) : (w.nett_amount || fmtRp(w.product_amount));
+        // 500M: nominal bersih = harga - biaya admin (31.000 - 7.500 = 23.500).
+        // KA: rumus lama, tidak berubah.
+        const showNett = (isZenith500m && fPrice) ? fmtRp(fPrice - ADMIN_FEE_500M)
+            : (fPrice ? fmtRp(fPrice) : (w.nett_amount || fmtRp(w.product_amount)));
         const rows = [
             ["ID Penarikan", w.withdrawal_id || orderId || "-"],
             ["Koin", w.coin || "-"],
             ["Nilai Coin", fmtRp(showPrice)],
-            ["Biaya Admin", fPrice ? "-" : (w.total_fee ? "- " + fmtRp(w.total_fee) : "-")],
+            ["Biaya Admin", isZenith500m ? "- " + fmtRp(ADMIN_FEE_500M) : (fPrice ? "-" : (w.total_fee ? "- " + fmtRp(w.total_fee) : "-"))],
             ["Nominal Bersih", showNett],
             ["Tujuan", tujuan.trim() || "-"],
             ["Nama Penerima", nama],
@@ -1025,7 +1036,7 @@ stars.forEach(s => s.classList.add('active'));
     // --- RESUME BONGKAR PENDING (lock 10 menit) ---
     let lockCountdownTimer = null;
     function resumeLockedWithdraw(data, displayInfo, baseInfo, isZenith) {
-        openWithdrawModal({ pending: true, order_id: data.order_id, withdrawal: {} }, displayInfo);
+        openWithdrawModal({ pending: true, order_id: data.order_id, withdrawal: {} }, displayInfo, isZenith);
         document.getElementById("wd-title").textContent = "BONGKAR SEBELUMNYA MASIH PENDING";
         let sisa = parseInt(data.remaining_seconds, 10) || 0;
         const note = document.getElementById("wd-note");
