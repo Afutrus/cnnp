@@ -376,9 +376,28 @@ module.exports = async (req, res) => {
   cors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  // PERBAIKAN 2026-10-26: cek env King Arthur di bawah ini TIDAK boleh
+  // memblokir pesanan Zenith. Sebelum perbaikan, cek ini berdiri di paling
+  // atas sebelum routing, sehingga pesanan 500m (yang hanya butuh env
+  // ZENITH_*) ikut gagal dengan pesan env King Arthur bila deployment
+  // tersebut belum punya env KA. Sekarang: request Zenith dilewatkan
+  // (cabang Zenith punya cek env-nya sendiri); request KA tetap kena cek
+  // yang sama dengan pesan yang sama.
+  let isZenithRequest = false;
+  if (req.method === 'POST') {
+    let earlyBody = req.body;
+    if (typeof earlyBody === 'string') {
+      try { earlyBody = JSON.parse(earlyBody); } catch { earlyBody = {}; }
+    }
+    isZenithRequest = String((earlyBody && earlyBody.supplier) || '').trim().toLowerCase() === 'zenith'
+      || zenithIs500mAmount(earlyBody && earlyBody.amount);
+  } else if (req.method === 'GET') {
+    isZenithRequest = String((req.query && req.query.action) || '').trim() === 'health-zenith'
+      || String((req.query && req.query.supplier) || '').trim() === 'zenith';
+  }
   const PROXY_URL = (process.env.KINGARTHUR_PROXY_URL || '').replace(/\/$/, '');
   const PROXY_KEY = process.env.KINGARTHUR_PROXY_KEY || '';
-  if (!PROXY_URL || !PROXY_KEY) {
+  if (!isZenithRequest && (!PROXY_URL || !PROXY_KEY)) {
     return res.status(500).json({
       success: false,
       error: 'Proxy belum dikonfigurasi (KINGARTHUR_PROXY_URL / KINGARTHUR_PROXY_KEY).',
